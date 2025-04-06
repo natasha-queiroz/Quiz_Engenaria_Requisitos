@@ -2,323 +2,194 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Quiz Engenharia de Requisitos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f1f1f1;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background: #f4f4f4;
+      padding: 20px;
     }
+
     .quiz-container {
-      background: white;
+      background: #fff;
+      padding: 20px;
       border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 600px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
+
     .question {
       font-size: 18px;
       margin-bottom: 15px;
     }
-    .choices {
+
+    .options {
       list-style: none;
       padding: 0;
     }
-    .choices li {
-      margin: 10px 0;
+
+    .options li {
+      margin-bottom: 10px;
     }
+
     button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
+      padding: 10px 15px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
+      margin-top: 10px;
+      background-color: #007bff;
+      color: white;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #45a049;
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
     }
-    .score {
-      text-align: center;
-      font-size: 20px;
+
+    .progress-bar {
+      background: #ccc;
+      height: 20px;
+      border-radius: 5px;
+      overflow: hidden;
       margin-top: 20px;
+    }
+
+    .progress {
+      background: #4caf50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .timer {
+      font-weight: bold;
+      float: right;
     }
   </style>
 </head>
 <body>
   <div class="quiz-container">
-    <h1>Quiz: Engenharia de Requisitos</h1>
-    <div id="quiz">
-      <div class="question" id="question"></div>
-      <ul class="choices" id="choices"></ul>
-      <button onclick="nextQuestion()">Próxima</button>
-      <div class="score" id="score"></div>
+    <div class="timer" id="timer">Tempo: 300s</div>//
+    <div class="question" id="question"></div>
+    <ul class="options" id="options"></ul>
+    <button onclick="nextQuestion()">Próxima</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
     </div>
+    <div class="result" id="result"></div>
   </div>
 
   <script>
-    const quizData = [
-      {
-        pergunta: "O que é um requisito de software?",
-        alternativas: [
-          "A. Um problema encontrado durante o desenvolvimento.",
-          "B. Uma função desejada pelo usuário final.",
-          "C. Uma condição ou capacidade necessária para um sistema.",
-          "D. Um tipo de código-fonte."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Qual das opções representa um requisito funcional?",
-        alternativas: [
-          "A. O sistema deve processar pedidos de venda.",
-          "B. O sistema deve ter bom desempenho.",
-          "C. O sistema deve usar arquitetura cliente-servidor.",
-          "D. O sistema deve ser compatível com iOS."
-        ],
-        correta: "A"
-      },
-      {
-        pergunta: "Requisitos não funcionais são relacionados a:",
-        alternativas: [
-          "A. O que o sistema deve fazer.",
-          "B. Regras de negócio.",
-          "C. Qualidade e restrições do sistema.",
-          "D. Casos de uso."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Qual é o primeiro passo da Engenharia de Requisitos?",
-        alternativas: [
-          "A. Documentação dos requisitos.",
-          "B. Validação dos requisitos.",
-          "C. Levantamento dos requisitos.",
-          "D. Gerenciamento de mudanças."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "O que é o DRS (Documento de Requisitos de Software)?",
-        alternativas: [
-          "A. Um documento de testes automatizados.",
-          "B. Documento que descreve o sistema completo.",
-          "C. Documento com requisitos, detalhamentos e critérios de aceitação.",
-          "D. Documento de instalação do sistema."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Um requisito organizacional trata de:",
-        alternativas: [
-          "A. Interface com o usuário.",
-          "B. Padrões ou processos internos da empresa.",
-          "C. Ações do sistema.",
-          "D. Interface gráfica."
-        ],
-        correta: "B"
-      },
-      {
-        pergunta: "Requisitos de domínio são importantes pois:",
-        alternativas: [
-          "A. São de difícil entendimento técnico.",
-          "B. Adicionam funcionalidades obrigatórias específicas do negócio.",
-          "C. Tornam o software mais bonito.",
-          "D. São úteis apenas na fase de testes."
-        ],
-        correta: "B"
-      },
-      {
-        pergunta: "O que pode acontecer se os requisitos forem mal definidos?",
-        alternativas: [
-          "A. O projeto será mais rápido.",
-          "B. Maior chance de sucesso do sistema.",
-          "C. O sistema pode não atender as necessidades dos usuários.",
-          "D. Nada, requisitos não são tão importantes."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Quem participa da etapa de levantamento de requisitos?",
-        alternativas: [
-          "A. Somente o programador.",
-          "B. O gerente do projeto.",
-          "C. Usuários, analistas, desenvolvedores e stakeholders.",
-          "D. Apenas os clientes."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Requisitos de produto estão relacionados a:",
-        alternativas: [
-          "A. Qualidade do software e funcionamento esperado.",
-          "B. Padrões da empresa.",
-          "C. Funções da equipe de projeto.",
-          "D. Layout dos relatórios."
-        ],
-        correta: "A"
-      },
-      {
-        pergunta: "A elicitação de requisitos envolve:",
-        alternativas: [
-          "A. Validar os requisitos.",
-          "B. Avaliar desempenho do sistema.",
-          "C. Coletar informações com as partes interessadas.",
-          "D. Criar interface do usuário."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Técnicas comuns de elicitação incluem:",
-        alternativas: [
-          "A. Brainstorming, entrevistas e observações.",
-          "B. Testes automatizados.",
-          "C. Modelagem UML.",
-          "D. Instalação de software."
-        ],
-        correta: "A"
-      },
-      {
-        pergunta: "O que é escopo do sistema?",
-        alternativas: [
-          "A. O sistema operacional utilizado.",
-          "B. O orçamento do projeto.",
-          "C. O limite do que será desenvolvido no projeto.",
-          "D. O design da interface gráfica."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Validação de requisitos serve para:",
-        alternativas: [
-          "A. Criar código-fonte do sistema.",
-          "B. Garantir que os requisitos estejam corretos e completos.",
-          "C. Desenvolver o banco de dados.",
-          "D. Escrever casos de teste."
-        ],
-        correta: "B"
-      },
-      {
-        pergunta: "O que é um requisito implícito?",
-        alternativas: [
-          "A. Um requisito que não pode ser testado.",
-          "B. Um requisito que está fora do escopo.",
-          "C. Um requisito que não foi explicitamente declarado, mas esperado.",
-          "D. Um requisito inválido."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Durante a negociação de requisitos:",
-        alternativas: [
-          "A. Apenas o desenvolvedor decide os requisitos.",
-          "B. O gerente define os requisitos finais.",
-          "C. As partes interessadas ajustam expectativas e prioridades.",
-          "D. O código-fonte é gerado automaticamente."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Qual é o objetivo da modelagem de requisitos?",
-        alternativas: [
-          "A. Criar a interface final.",
-          "B. Simular o banco de dados.",
-          "C. Representar requisitos de forma visual e compreensível.",
-          "D. Gerar documentação técnica."
-        ],
-        correta: "C"
-      },
-      {
-        pergunta: "Casos de uso são utilizados para:",
-        alternativas: [
-          "A. Modelar o design gráfico.",
-          "B. Representar interações entre usuário e sistema.",
-          "C. Criar tabelas do banco de dados.",
-          "D. Automatizar testes."
-        ],
-        correta: "B"
-      },
-      {
-        pergunta: "Critérios de aceitação servem para:",
-        alternativas: [
-          "A. Medir desempenho do hardware.",
-          "B. Validar se um requisito foi corretamente implementado.",
-          "C. Avaliar salário dos desenvolvedores.",
-          "D. Definir escopo de design."
-        ],
-        correta: "B"
-      },
-      {
-        pergunta: "Qual artefato é gerado ao final da engenharia de requisitos?",
-        alternativas: [
-          "A. Código fonte.",
-          "B. Documento de instalação.",
-          "C. Documento de Requisitos de Software.",
-          "D. Interface de usuário."
-        ],
-        correta: "C"
-      }
+    const questions = [
+      { q: "O que é engenharia de requisitos?", a: ["Processo de definir, documentar e manter requisitos", "Etapa de testes", "Desenvolvimento de código", "Fase de manutenção"], correct: 0 },
+      { q: "Qual o objetivo principal da engenharia de requisitos?", a: ["Testar o software", "Definir como será feita a codificação", "Entender as necessidades dos usuários", "Documentar erros"], correct: 2 },
+      { q: "O que é um requisito funcional?", a: ["Descreve comportamento do sistema", "Define restrições", "Define tempo de entrega", "Relaciona usuários"], correct: 0 },
+      { q: "O que é um requisito não funcional?", a: ["Requisitos invisíveis", "Requisitos que não precisam ser documentados", "Requisitos de qualidade como desempenho", "Requisitos que não têm função"], correct: 2 },
+      { q: "O que é uma especificação de requisitos?", a: ["Manual de usuário", "Contrato legal", "Documento que detalha os requisitos", "Plano de testes"], correct: 2 },
+      { q: "O que é levantamento de requisitos?", a: ["Etapa de testes", "Coleta de informações sobre o sistema", "Etapa de desenvolvimento", "Treinamento dos usuários"], correct: 1 },
+      { q: "Qual técnica NÃO é usada para levantamento de requisitos?", a: ["Entrevista", "Observação", "Questionário", "Depuração"], correct: 3 },
+      { q: "O que são stakeholders?", a: ["Programadores", "Investidores", "Todos os envolvidos/interessados no projeto", "Clientes apenas"], correct: 2 },
+      { q: "O que é um caso de uso?", a: ["Uma história sobre o projeto", "Descrição de como o sistema interage com usuários", "Um protótipo", "Uma falha de sistema"], correct: 1 },
+      { q: "O que é um requisito ambíguo?", a: ["Muito claro", "Difícil de implementar", "Confuso, com várias interpretações", "Não documentado"], correct: 2 },
+      { q: "A validação de requisitos serve para:", a: ["Corrigir erros de código", "Garantir que os requisitos são corretos e completos", "Executar o sistema", "Treinar usuários"], correct: 1 },
+      { q: "Requisitos devem ser:", a: ["Subjetivos e flexíveis", "Ambíguos e curtos", "Claros, completos e verificáveis", "Longos e complicados"], correct: 2 },
+      { q: "O que é um protótipo?", a: ["Documento com regras de negócio", "Versão simplificada do sistema", "Manual do usuário", "Código-fonte final"], correct: 1 },
+      { q: "O que é escopo?", a: ["Ferramenta de modelagem", "Descrição dos requisitos funcionais", "Delimitação do que será feito no projeto", "Ferramenta de teste"], correct: 2 },
+      { q: "Qual o risco de requisitos mal definidos?", a: ["Software mais rápido", "Clientes mais satisfeitos", "Retrabalho e falhas no sistema", "Menos bugs"], correct: 2 },
+      { q: "Qual o principal objetivo da modelagem de requisitos?", a: ["Criar diagramas bonitos", "Comunicar requisitos de forma clara", "Desenvolver banco de dados", "Criar planos de marketing"], correct: 1 },
+      { q: "Requisitos verificáveis são:", a: ["Aqueles que podem ser testados ou demonstrados", "Requisitos não funcionais", "Aqueles escritos em linguagem técnica", "Requisitos de design"], correct: 0 },
+      { q: "A rastreabilidade de requisitos serve para:", a: ["Esquecer requisitos antigos", "Garantir que requisitos estão completos", "Religar requisitos a outras fases do projeto", "Descrever testes automatizados"], correct: 2 },
+      { q: "Requisitos mutáveis são aqueles que:", a: ["São estáveis", "Podem mudar com o tempo", "Não são usados", "Servem para hardware"], correct: 1 },
+      { q: "Qual ferramenta é comumente usada na modelagem de requisitos?", a: ["Word", "Excel", "UML", "Photoshop"], correct: 2 }
     ];
 
-    let index = 0;
+    let currentQuestion = 0;
     let score = 0;
+    let timeLeft = 300;
+    let timer;
 
-    function carregarQuestao() {
-      const q = quizData[index];
-      document.getElementById("question").textContent = q.pergunta;
-      const choicesList = document.getElementById("choices");
-      choicesList.innerHTML = "";
+    function startQuiz() {
+      showQuestion();
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `Tempo: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          showResult();
+        }
+      }, 1000);
+    }
 
-      q.alternativas.forEach(alt => {
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("question").textContent = `(${currentQuestion + 1}/${questions.length}) ${q.q}`;
+      const options = document.getElementById("options");
+      options.innerHTML = "";
+      q.a.forEach((option, index) => {
         const li = document.createElement("li");
-        const input = document.createElement("input");
-        input.type = "radio";
-        input.name = "alternativa";
-        input.value = alt.charAt(0);
-        li.appendChild(input);
-        li.appendChild(document.createTextNode(" " + alt));
-        choicesList.appendChild(li);
+        li.innerHTML = `<label><input type="radio" name="option" value="${index}"> ${option}</label>`;
+        options.appendChild(li);
       });
+      document.getElementById("feedback").textContent = "";
+      updateProgress();
     }
 
     function nextQuestion() {
-      const selected = document.querySelector('input[name="alternativa"]:checked');
+      const selected = document.querySelector("input[name='option']:checked");
       if (!selected) {
-        alert("Selecione uma alternativa!");
+        alert("Selecione uma opção!");
         return;
       }
 
-      if (selected.value === quizData[index].correta) {
+      const answer = parseInt(selected.value);
+      if (answer === questions[currentQuestion].correct) {
         score++;
+        document.getElementById("feedback").textContent = "Correto!";
+        document.getElementById("feedback").style.color = "green";
+      } else {
+        document.getElementById("feedback").textContent = "Incorreto!";
+        document.getElementById("feedback").style.color = "red";
       }
 
-      index++;
-      if (index < quizData.length) {
-        carregarQuestao();
-      } else {
-        document.getElementById("quiz").innerHTML = `
-          <h2>Você acertou ${score} de ${quizData.length} questões.</h2>
-          <p>Sua pontuação foi salva!</p>
-          <button onclick="location.reload()">Reiniciar</button>
-        `;
-        localStorage.setItem("pontuacaoQuizEngenharia", score);
-      }
+      currentQuestion++;
+      setTimeout(() => {
+        if (currentQuestion < questions.length) {
+          showQuestion();
+        } else {
+          clearInterval(timer);
+          showResult();
+        }
+      }, 800);
     }
 
-    carregarQuestao();
+    function updateProgress() {
+      const percent = ((currentQuestion) / questions.length) * 100;
+      document.getElementById("progress").style.width = `${percent}%`;
+    }
+
+    function showResult() {
+      let level = "";
+      if (score <= 10) level = "Iniciante";
+      else if (score <= 15) level = "Intermediário";
+      else level = "Avançado";
+
+      const result = `Você acertou ${score} de ${questions.length} questões. Nível: ${level}`;
+      document.getElementById("result").textContent = result;
+      localStorage.setItem("quizResultado", result);
+    }
+
+    window.onload = startQuiz;
   </script>
 </body>
 </html>
